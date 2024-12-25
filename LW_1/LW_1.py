@@ -13,56 +13,41 @@ def mdl(data_x, data_y, i):
     """Вычисление модуля вектора в точке i."""
     return round((data_x[i]**2+data_y[i]**2)**0.5,5)
 
-# Символьная переменная
 t = sp.Symbol('t', real=True)
 
-# Данные варианта 22:
-# z(t) = 5 - 0.5t
-# phi(t) = 2t
 z = 5 - 0.5*t
 phi = 2*t
 
-# Перевод в декартовы координаты
 x = z*sp.cos(phi)
 y = z*sp.sin(phi)
 
-# Скорости
 Vx = sp.diff(x, t)
 Vy = sp.diff(y, t)
 V = sp.sqrt(Vx**2 + Vy**2)
 
-# Ускорения
 Wx = sp.diff(Vx, t)
 Wy = sp.diff(Vy, t)
 W = sp.sqrt(Wx**2 + Wy**2)
 
-# Тангенциальное ускорение
 Wt = sp.diff(V, t)
 
-# Нормальное ускорение
 Wn = sp.sqrt(W**2 - Wt**2)
 
-# Проекции тангенциального ускорения
 Wtx = Vx/V*Wt
 Wty = Vy/V*Wt
 
-# Проекции нормального ускорения
 Wnx = Wx - Wtx
 Wny = Wy - Wty
 
-# Единичные направления нормального ускорения Nx, Ny
 Nx = sp.Piecewise((0, sp.Eq(Wn,0)), (Wnx/Wn, True))
 Ny = sp.Piecewise((0, sp.Eq(Wn,0)), (Wny/Wn, True))
 
-# Радиус кривизны CR = V² / Wn, при Wn=0 задаём 0 чтобы избежать деления на ноль
 curvature_module = sp.Piecewise((0, sp.Eq(Wn,0)), ((V**2)/Wn, True))
 curvature_x = curvature_module*Nx
 curvature_y = curvature_module*Ny
 
-# Временной массив
 T = np.linspace(0,6.28,1000)
 
-# Численные функции
 Fx = sp.lambdify(t, x, 'numpy')
 Fy = sp.lambdify(t, y, 'numpy')
 FVx = sp.lambdify(t, Vx, 'numpy')
@@ -75,7 +60,6 @@ Fcy = sp.lambdify(t, curvature_y, 'numpy')
 X = Fx(T)
 Y = Fy(T)
 
-# Проверка на скалярность и преобразование в массивы
 vx_val = FVx(T)*0.2
 if np.isscalar(vx_val):
     vx_val = np.full_like(T, vx_val)
@@ -112,28 +96,24 @@ ax.set_ylim([min(Y)-1, max(Y)+1])
 ax.plot(X,Y,'black')
 point = ax.plot(X[0],Y[0],marker='o',markerfacecolor='grey',markeredgecolor='red',markersize=9)[0]
 
-# Вектор скорости
 v_line = ax.plot([X[0],X[0]+VX[0]],[Y[0],Y[0]+VY[0]],'r',label='Скорость (V)')[0]
 x_v_arr = np.array([-0.05,0,-0.05])
 y_v_arr = np.array([0.05,0,-0.05])
 r_x_v,r_y_v = rot2d(x_v_arr,y_v_arr,math.atan2(VY[0],VX[0]))
 v_arrow = ax.plot(r_x_v+X[0]+VX[0], r_y_v+Y[0]+VY[0],'r')[0]
 
-# Вектор ускорения
 w_line = ax.plot([X[0],X[0]+WX[0]],[Y[0],Y[0]+WY[0]],'g',label='Ускорение (W)')[0]
 x_w_arr = np.array([-0.05,0,-0.05])
 y_w_arr = np.array([0.05,0,-0.05])
 r_x_w,r_y_w = rot2d(x_w_arr,y_w_arr,math.atan2(WY[0],WX[0]))
 w_arrow = ax.plot(r_x_w+X[0]+WX[0], r_y_w+Y[0]+WY[0],'g')[0]
 
-# Радиус-вектор
 r_line = ax.plot([0,X[0]],[0,Y[0]],'b',label='Радиус-вектор (R)')[0]
 x_r_arr = np.array([-0.05,0,-0.05])
 y_r_arr = np.array([0.05,0,-0.05])
 r_x_r,r_y_r = rot2d(x_r_arr,y_r_arr,math.atan2(Y[0],X[0]))
 r_arrow = ax.plot(r_x_r+X[0], r_y_r+Y[0],'b')[0]
 
-# Радиус кривизны
 curvature_radius = ax.plot([X[0],X[0]+CX[0]],[Y[0],Y[0]+CY[0]],
                            'black',linestyle='--',label='Радиус кривизны (CR)')[0]
 
