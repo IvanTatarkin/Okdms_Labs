@@ -124,27 +124,35 @@ text = ax.text(0.03,0.03,raw_text.format(r=mdl(X,Y,0), v=mdl(VX,VY,0), w=mdl(WX,
 def animate(i):
     point.set_data([X[i]], [Y[i]])
 
-    
-    v_line.set_data([X[i],X[i]+VX[i]],[Y[i],Y[i]+VY[i]])
-    r_x_v,r_y_v = rot2d(x_v_arr,y_v_arr,math.atan2(VY[i],VX[i]))
-    v_arrow.set_data(r_x_v+X[i]+VX[i],r_y_v+Y[i]+VY[i])
+    # Вектор скорости
+    v_line.set_data([X[i], X[i] + VX[i]], [Y[i], Y[i] + VY[i]])
+    angle_v = math.atan2(VY[i], VX[i])  # Угол для вектора скорости
+    r_x_v, r_y_v = rot2d(x_v_arr, y_v_arr, angle_v)  # Поворот стрелки относительно точки
+    v_arrow.set_data(r_x_v + X[i] + VX[i], r_y_v + Y[i] + VY[i])  # Обновление стрелки
 
-    w_line.set_data([X[i],X[i]+WX[i]],[Y[i],Y[i]+WY[i]])
-    r_x_w,r_y_w = rot2d(x_w_arr,y_w_arr,math.atan2(WY[i],WX[i]))
-    w_arrow.set_data(r_x_w+X[i]+WX[i], r_y_w+Y[i]+WY[i])
+    # Вектор ускорения
+    w_line.set_data([X[i], X[i] + WX[i]], [Y[i], Y[i] + WY[i]])
+    angle_w = math.atan2(WY[i], WX[i])  # Угол для вектора ускорения
+    r_x_w, r_y_w = rot2d(x_w_arr, y_w_arr, angle_w)  # Поворот стрелки относительно точки
+    w_arrow.set_data(r_x_w + X[i] + WX[i], r_y_w + Y[i] + WY[i])  # Обновление стрелки
 
-    r_line.set_data([0,X[i]],[0,Y[i]])
-    r_x_r,r_y_r = rot2d(x_r_arr,y_r_arr,math.atan2(Y[i],X[i]))
-    r_arrow.set_data(r_x_r+X[i], r_y_r+Y[i])
+    # Радиус-вектор
+    r_line.set_data([0, X[i]], [0, Y[i]])
+    angle_r = math.atan2(Y[i], X[i])  # Угол для радиус-вектора
+    r_x_r, r_y_r = rot2d(x_r_arr, y_r_arr, angle_r)  # Поворот стрелки относительно точки
+    r_arrow.set_data(r_x_r + X[i], r_y_r + Y[i])  # Обновление стрелки
 
-    curvature_radius.set_data([X[i],X[i]+CX[i]],[Y[i],Y[i]+CY[i]])
+    # Радиус кривизны
+    curvature_radius.set_data([X[i], X[i] + CX[i]], [Y[i], Y[i] + CY[i]])
 
-    text.set_text(raw_text.format(r=mdl(X,Y,i),
-                                  v=mdl(VX,VY,i),
-                                  w=mdl(WX,WY,i),
-                                  cr=mdl(CX,CY,i)))
-    return point,v_line,v_arrow,curvature_radius
+    # Обновление текста
+    text.set_text(raw_text.format(r=mdl(X, Y, i),
+                                  v=mdl(VX, VY, i),
+                                  w=mdl(WX, WY, i),
+                                  cr=mdl(CX, CY, i)))
+    return point, v_line, v_arrow, w_line, w_arrow, r_line, r_arrow, curvature_radius
 
+# Создание анимации
 animation = FuncAnimation(fig, animate, frames=len(T), interval=1)
 ax.legend(fontsize=7)
 plt.show()
